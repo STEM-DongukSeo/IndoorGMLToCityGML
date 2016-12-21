@@ -1,16 +1,11 @@
 package edu.pnu.importexport;
 
-import java.io.File;
 import java.util.Locale;
-import java.util.Properties;
 
-import org.apache.ibatis.io.Resources;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-
-import edu.pnu.test.TestSupport;
 
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)

@@ -9,11 +9,11 @@ import java.util.Map;
 import net.opengis.indoorgml.v_1_0.vo.core.CellSpace;
 import net.opengis.indoorgml.v_1_0.vo.core.CellSpaceBoundary;
 import net.opengis.indoorgml.v_1_0.vo.core.IndoorFeatures;
-import net.opengis.indoorgml.v_1_0.vo.core.PrimalSpaceFeatures;
 import net.opengis.indoorgml.v_1_0.vo.core.State;
 import net.opengis.indoorgml.v_1_0.vo.core.Transition;
 
 import org.geotools.geometry.iso.primitive.PrimitiveFactoryImpl;
+import org.opengis.geometry.Envelope;
 import org.opengis.geometry.primitive.OrientableSurface;
 import org.opengis.geometry.primitive.Primitive;
 import org.opengis.geometry.primitive.Shell;
@@ -48,7 +48,7 @@ public class AnalyzeStep1 {
 			System.out.println("number of cellspace of floor : " + floorCellSpace.size());
 			for (CellSpace cellSpace : floorCellSpace) {
 				System.out.println(cellSpace.getGmlID());
-				setSurfaceList(cellSpace);
+				setSurfaces(cellSpace);
 				//System.out.println("setSurfaceList");
 			}
 
@@ -64,7 +64,7 @@ public class AnalyzeStep1 {
 		}
 	}
 
-	private void setSurfaceList(CellSpace cellSpace) {
+	private void setSurfaces(CellSpace cellSpace) {
 		List<Surface> surfaces = new ArrayList<Surface>();
 
 		Solid solid = cellSpace.getGeometry3D().getGeometry();
@@ -73,15 +73,36 @@ public class AnalyzeStep1 {
 		Shell exterior = boundary.getExterior();
 		Shell[] interiors = boundary.getInteriors();
 
+		Envelope envelope = solid.getEnvelope();
+		double minZ = envelope.getMinimum(2);
+		double maxZ = envelope.getMaximum(2);
+		Surface ceilingFacet = null;
+		Surface floorFacet = null;
+		
 		Collection<? extends Primitive> elements = exterior.getElements();
 		if (ArrayList.class.isAssignableFrom(elements.getClass())) {
 			List<OrientableSurface> exteriorSurfaces = (ArrayList<OrientableSurface>) exterior.getElements();
 			for (OrientableSurface oSurface : exteriorSurfaces) {
 				if (oSurface instanceof Surface) {
 					Surface surface = (Surface) oSurface;
-					surfaces.add(surface);
+					Envelope surfaceEnv = surface.getEnvelope();
+					double surfaceMinZ = surfaceEnv.getMinimum(2);
+					double surfaceMaxZ = surfaceEnv.getMaximum(2);
+					
+					if (surfaceMinZ == surfaceMaxZ) {
+						if (surfaceMinZ == minZ) {
+							floorFacet = surface;
+						} else if (surfaceMinZ == maxZ) {
+							ceilingFacet = surface;
+						}
+					} else {
+						surfaces.add(surface);
+					}
 				}
 			}
+			surfaces.add(0, floorFacet);
+			surfaces.add(0, ceilingFacet);
+			// sequence of facets : ceiling, floor, interiorWall 
 		}
 
 		cellSpace.setFacets(surfaces);
@@ -93,26 +114,43 @@ public class AnalyzeStep1 {
 		ArrayList<CellSpaceBoundary> partialBoundedBy = cellSpace.getPartialBoundedBy();
 
 		for (CellSpaceBoundary boundary : partialBoundedBy) {
-
 			Surface closedFacet = null;
 			double minDistance = Double.MAX_VALUE;
-			for (Surface facet : facets) {
-				OrientableSurface boundaryGeometry = boundary.getGeometry3D().getGeometry();
-
-				if (boundaryGeometry == null) {
-					if (boundary.getGeometry3D().getPolygonGeometry() != null) {
-						SurfaceBoundary polygonBoundary = boundary.getGeometry3D().getPolygonGeometry().getBoundary();
-						boundaryGeometry = pf.createSurface(polygonBoundary);
-					} else {
-						throw new UnsupportedOperationException("Not exist geometry object of CellSpaceBoundary");
-					}
+			
+			OrientableSurface boundaryGeometry = boundary.getGeometry3D().getGeometry();
+			if (boundaryGeometry == null) {
+				if (boundary.getGeometry3D().getPolygonGeometry() != null) {
+					SurfaceBoundary polygonBoundary = boundary.getGeometry3D().getPolygonGeometry().getBoundary();
+					boundaryGeometry = pf.createSurface(polygonBoundary);
+				} else {
+					throw new UnsupportedOperationException("Not exist geometry object of CellSpaceBoundary");
 				}
-
-				if (facet.contains(boundaryGeometry)) { // Solid 의 면에 포함된 Boundary를 찾는다.
+			}
+			
+			Envelope boundaryEnv = boundaryGeometry.getEnvelope(); // boundary와 옆면과만 비교하기 위해 z값비교
+			double boundaryMinZ = boundaryEnv.getMinimum(2);
+			double boundaryMaxZ = boundaryEnv.getMaximum(2);
+			boolean isHorizontalBoundary = false;
+			if (boundaryMinZ == boundaryMaxZ) {
+				isHorizontalBoundary = true;
+			}
+			
+			for (Surface facet : facets) {
+				if (facet.equals(boundaryGeometry) || facet.contains(boundaryGeometry)) { // Solid 의 면에 포함된 Boundary를 찾는다.
 					addToFacetBoundaryMap(facetBoundaryMap, facet, boundary);
 					closedFacet= null;
 					break;
 				} else { // 소수점 등의 문제로 contains 연산이 안될 경우 거리가 가장 가까운 면을 찾는다.
+					Envelope facetEnv = facet.getEnvelope(); // 옆으로 서있는 면인 경우 옆면과 비교하기 위해 z값비교
+					double facetMinZ = facetEnv.getMinimum(2);
+					double facetMaxZ = facetEnv.getMaximum(2);
+					boolean isHorizontalFacet = false;
+					if (facetMinZ == facetMaxZ) {
+						isHorizontalFacet = true;
+					}
+					
+					if (isHorizontalBoundary != isHorizontalFacet) continue;
+					
 					double dist = facet.distance(boundaryGeometry);
 					if (dist < minDistance) {
 						minDistance = dist;
@@ -239,7 +277,6 @@ public class AnalyzeStep1 {
 	private CellSpace findAdjacencyCellSpace(OrientableSurface boundaryGeometry, List<CellSpace> cells) {
 		for (CellSpace other : cells) {
 			Surface lowerFacet = other.getFacets().get(other.getFacets().size() - 1);
-			Solid otherSolid = other.getGeometry3D().getGeometry();
 
 			// Solid에 boundaryGeometry가 포함되는지 알아보기 위해 contians를 했을 때 모두 false가 나옴
 			// 소수점 차이로 인한 문제인것 같음

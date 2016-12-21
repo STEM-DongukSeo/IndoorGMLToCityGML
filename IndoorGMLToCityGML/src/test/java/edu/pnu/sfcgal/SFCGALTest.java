@@ -32,8 +32,44 @@ public class SFCGALTest {
 	    builder = new GeometryBuilder(hints);
 	    pf = (PrimitiveFactoryImpl) builder.getPrimitiveFactory();
 	}
-
+	
 	@Test
+	public void differenceTest() {
+		List<DirectPosition> positions1 = new ArrayList<DirectPosition>();
+		
+		DirectPosition p11 = builder.createDirectPosition(new double[]{0, 0, 0});
+		DirectPosition p12 = builder.createDirectPosition(new double[]{5, 0, 0});
+		DirectPosition p13 = builder.createDirectPosition(new double[]{5, -5, 0});
+		DirectPosition p14 = builder.createDirectPosition(new double[]{0, -5, 0});
+		
+		positions1.add(p11);
+		positions1.add(p12);
+		positions1.add(p13);
+		positions1.add(p14);
+		positions1.add(p11);
+		
+		Surface surface1 = pf.createSurfaceByDirectPositions(positions1);
+		
+		List<DirectPosition> positions2 = new ArrayList<DirectPosition>();
+		
+		DirectPosition p21 = builder.createDirectPosition(new double[]{2, 0, 0});
+		DirectPosition p22 = builder.createDirectPosition(new double[]{4, 0, 0});
+		DirectPosition p23 = builder.createDirectPosition(new double[]{4, 2, 0});
+		DirectPosition p24 = builder.createDirectPosition(new double[]{2, 2, 0});
+		
+		positions2.add(p21);
+		positions2.add(p22);
+		positions2.add(p23);
+		positions2.add(p24);
+		positions2.add(p21);
+		
+		Surface surface2 = pf.createSurfaceByDirectPositions(positions2);
+		
+		TransfiniteSet difference = surface1.difference(surface2);
+		System.out.println(difference.toString());
+	}
+
+	//@Test
 	public void intersectTest() {
 		List<DirectPosition> positions1 = new ArrayList<DirectPosition>();
 		

@@ -1,32 +1,26 @@
 package edu.pnu.analysis;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.opengis.citygml.building.Building;
 import net.opengis.indoorgml.v_1_0.vo.core.CellSpace;
-import net.opengis.indoorgml.v_1_0.vo.core.CellSpaceBoundary;
 import net.opengis.indoorgml.v_1_0.vo.core.IndoorFeatures;
 import net.opengis.indoorgml.v_1_0.vo.core.PrimalSpaceFeatures;
-import net.opengis.indoorgml.v_1_0.vo.core.State;
-import net.opengis.indoorgml.v_1_0.vo.core.Transition;
 
 import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
 import org.geotools.geometry.GeometryBuilder;
+import org.geotools.geometry.iso.aggregate.AggregateFactoryImpl;
 import org.geotools.geometry.iso.primitive.PrimitiveFactoryImpl;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.geometry.Envelope;
-import org.opengis.geometry.primitive.OrientableSurface;
-import org.opengis.geometry.primitive.Primitive;
-import org.opengis.geometry.primitive.Shell;
 import org.opengis.geometry.primitive.Solid;
-import org.opengis.geometry.primitive.SolidBoundary;
-import org.opengis.geometry.primitive.Surface;
-import org.opengis.geometry.primitive.SurfaceBoundary;
+
+import edu.pnu.convert.CityGMLGenerator;
 
 
 public class IndoorGMLAnalyzer {
@@ -38,6 +32,7 @@ public class IndoorGMLAnalyzer {
 	private Hints hints = null;
 	private GeometryBuilder builder = null;
 	private PrimitiveFactoryImpl pf = null;
+	private AggregateFactoryImpl af = null;
 
 	public IndoorGMLAnalyzer(IndoorFeatures indoorFeatures) {
 		this.indoorFeatures = indoorFeatures;
@@ -47,6 +42,7 @@ public class IndoorGMLAnalyzer {
         hints.put(Hints.GEOMETRY_VALIDATE, false);
         builder = new GeometryBuilder(hints);
         pf = (PrimitiveFactoryImpl) builder.getPrimitiveFactory();
+        af = (AggregateFactoryImpl) builder.getAggregateFactory();
 	}
 	
 	public void classifyCellByFloor() {
@@ -88,5 +84,22 @@ public class IndoorGMLAnalyzer {
 	public void analyzeStep1() {
 		AnalyzeStep1 step1 = new AnalyzeStep1(indoorFeatures, floorZOrdinates, floorCellSpaceMap, pf);
 		step1.analyzeStep1();
+	}
+	
+	public void cellSpaceSemanticAnalyze() {
+		CellSpaceSemanticAnalyze analyze = new CellSpaceSemanticAnalyze(indoorFeatures, floorZOrdinates, floorCellSpaceMap, pf);
+		analyze.analyzeStep();
+	}
+	
+	public void boundarySemanticAnalyze() {
+		BoundarySemanticAnalyze analyze = new BoundarySemanticAnalyze(indoorFeatures, floorZOrdinates, floorCellSpaceMap, pf);
+		analyze.analyzeStep();
+	}
+	
+	public Building generateBuilding() {
+		CityGMLGenerator generator = new CityGMLGenerator(indoorFeatures, floorZOrdinates, floorCellSpaceMap, pf, af);
+		Building building = generator.generate();
+		
+		return building;
 	}
 }

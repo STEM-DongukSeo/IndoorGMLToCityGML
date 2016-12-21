@@ -16,6 +16,8 @@ public class VOGeometry {
 	private Integer srsDimension;
 	private boolean isXLink;
 	
+	// xLink일 경우에는 gmlid를 xLink로 가리키는 객체의 id로 저장한다.
+	
 	/**
 	 * @return the id
 	 */

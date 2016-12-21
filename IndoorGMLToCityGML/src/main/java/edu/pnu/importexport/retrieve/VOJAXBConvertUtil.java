@@ -1,9 +1,14 @@
+/**
+ * 
+ */
 package edu.pnu.importexport.retrieve;
 
-import java.util.ArrayList;
+import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -11,619 +16,647 @@ import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.opengis.citygml.building.Building;
+import net.opengis.citygml.building.v_2_0.AbstractBuildingType;
+import net.opengis.citygml.building.v_2_0.BuildingType;
+import net.opengis.citygml.core.AbstractFeature;
+import net.opengis.citygml.v_2_0.AbstractCityObjectType;
+import net.opengis.citygml.v_2_0.AddressPropertyType;
+import net.opengis.citygml.v_2_0.AddressType;
+import net.opengis.citygml.v_2_0.CityModelType;
+import net.opengis.gml.v_3_1_1.AbstractGMLType;
+import net.opengis.gml.v_3_1_1.AbstractGeometryType;
+import net.opengis.gml.v_3_1_1.AbstractRingPropertyType;
+import net.opengis.gml.v_3_1_1.AbstractRingType;
+import net.opengis.gml.v_3_1_1.AbstractSolidType;
+import net.opengis.gml.v_3_1_1.AbstractSurfaceType;
+import net.opengis.gml.v_3_1_1.BoundingShapeType;
+import net.opengis.gml.v_3_1_1.CodeType;
+import net.opengis.gml.v_3_1_1.CompositeSurfaceType;
+import net.opengis.gml.v_3_1_1.DirectPositionListType;
+import net.opengis.gml.v_3_1_1.DirectPositionType;
+import net.opengis.gml.v_3_1_1.EnvelopeType;
+import net.opengis.gml.v_3_1_1.FeaturePropertyType;
+import net.opengis.gml.v_3_1_1.GeometryPropertyType;
+import net.opengis.gml.v_3_1_1.LengthType;
+import net.opengis.gml.v_3_1_1.LinearRingType;
+import net.opengis.gml.v_3_1_1.MeasureOrNullListType;
+import net.opengis.gml.v_3_1_1.MultiSurfacePropertyType;
+import net.opengis.gml.v_3_1_1.MultiSurfaceType;
+import net.opengis.gml.v_3_1_1.PointPropertyType;
+import net.opengis.gml.v_3_1_1.PointType;
+import net.opengis.gml.v_3_1_1.PolygonPropertyType;
+import net.opengis.gml.v_3_1_1.PolygonType;
+import net.opengis.gml.v_3_1_1.SolidPropertyType;
+import net.opengis.gml.v_3_1_1.SolidType;
+import net.opengis.gml.v_3_1_1.StringOrRefType;
+import net.opengis.gml.v_3_1_1.SurfacePropertyType;
+import oasis.names.tc.ciq.xsdschema.xal.AddressDetails.Address;
 
-import net.opengis.gml.v_3_2_1.CodeType;
-import net.opengis.gml.v_3_2_1.CurvePropertyType;
-import net.opengis.gml.v_3_2_1.FeaturePropertyType;
-import net.opengis.gml.v_3_2_1.PointPropertyType;
-import net.opengis.gml.v_3_2_1.SolidPropertyType;
-import net.opengis.gml.v_3_2_1.SurfacePropertyType;
-import net.opengis.indoorgml.core.v_1_0.CellSpaceBoundaryPropertyType;
-import net.opengis.indoorgml.core.v_1_0.CellSpaceBoundaryType;
-import net.opengis.indoorgml.core.v_1_0.CellSpacePropertyType;
-import net.opengis.indoorgml.core.v_1_0.CellSpaceType;
-import net.opengis.indoorgml.core.v_1_0.EdgesType;
-import net.opengis.indoorgml.core.v_1_0.ExternalObjectReferenceType;
-import net.opengis.indoorgml.core.v_1_0.ExternalReferenceType;
-import net.opengis.indoorgml.core.v_1_0.IndoorFeaturesType;
-import net.opengis.indoorgml.core.v_1_0.InterEdgesType;
-import net.opengis.indoorgml.core.v_1_0.InterLayerConnectionMemberType;
-import net.opengis.indoorgml.core.v_1_0.InterLayerConnectionType;
-import net.opengis.indoorgml.core.v_1_0.MultiLayeredGraphType;
-import net.opengis.indoorgml.core.v_1_0.NodesType;
-import net.opengis.indoorgml.core.v_1_0.PrimalSpaceFeaturesPropertyType;
-import net.opengis.indoorgml.core.v_1_0.PrimalSpaceFeaturesType;
-import net.opengis.indoorgml.core.v_1_0.SpaceLayerMemberType;
-import net.opengis.indoorgml.core.v_1_0.SpaceLayerPropertyType;
-import net.opengis.indoorgml.core.v_1_0.SpaceLayerType;
-import net.opengis.indoorgml.core.v_1_0.SpaceLayersType;
-import net.opengis.indoorgml.core.v_1_0.StateMemberType;
-import net.opengis.indoorgml.core.v_1_0.StatePropertyType;
-import net.opengis.indoorgml.core.v_1_0.StateType;
-import net.opengis.indoorgml.core.v_1_0.TransitionMemberType;
-import net.opengis.indoorgml.core.v_1_0.TransitionPropertyType;
-import net.opengis.indoorgml.core.v_1_0.TransitionType;
-import net.opengis.indoorgml.navigation.v_1_0.PathType;
-import net.opengis.indoorgml.navigation.v_1_0.RouteNodeMemberType;
-import net.opengis.indoorgml.navigation.v_1_0.RouteNodePropertyType;
-import net.opengis.indoorgml.navigation.v_1_0.RouteNodeType;
-import net.opengis.indoorgml.navigation.v_1_0.RouteNodesType;
-import net.opengis.indoorgml.navigation.v_1_0.RouteSegmentMemberType;
-import net.opengis.indoorgml.navigation.v_1_0.RouteSegmentType;
-import net.opengis.indoorgml.navigation.v_1_0.RouteType;
-import net.opengis.indoorgml.v_1_0.vo.core.CellSpace;
-import net.opengis.indoorgml.v_1_0.vo.core.CellSpaceBoundary;
-import net.opengis.indoorgml.v_1_0.vo.core.Edges;
-import net.opengis.indoorgml.v_1_0.vo.core.ExternalReference;
-import net.opengis.indoorgml.v_1_0.vo.core.IndoorFeatures;
-import net.opengis.indoorgml.v_1_0.vo.core.InterEdges;
-import net.opengis.indoorgml.v_1_0.vo.core.InterLayerConnection;
-import net.opengis.indoorgml.v_1_0.vo.core.MultiLayeredGraph;
-import net.opengis.indoorgml.v_1_0.vo.core.Nodes;
-import net.opengis.indoorgml.v_1_0.vo.core.PrimalSpaceFeatures;
-import net.opengis.indoorgml.v_1_0.vo.core.SpaceLayer;
-import net.opengis.indoorgml.v_1_0.vo.core.SpaceLayers;
-import net.opengis.indoorgml.v_1_0.vo.core.State;
-import net.opengis.indoorgml.v_1_0.vo.core.Transition;
-import net.opengis.indoorgml.v_1_0.vo.navigation.Path;
-import net.opengis.indoorgml.v_1_0.vo.navigation.Route;
-import net.opengis.indoorgml.v_1_0.vo.navigation.RouteNode;
-import net.opengis.indoorgml.v_1_0.vo.navigation.RouteNodes;
-import net.opengis.indoorgml.v_1_0.vo.navigation.RouteSegment;
+import org.geotools.geometry.iso.coordinate.EnvelopeImpl;
+import org.geotools.geometry.iso.primitive.RingImplUnsafe;
+import org.opengis.geometry.DirectPosition;
+import org.opengis.geometry.Envelope;
+import org.opengis.geometry.Geometry;
+import org.opengis.geometry.aggregate.MultiSurface;
+import org.opengis.geometry.coordinate.Polygon;
+import org.opengis.geometry.primitive.OrientableSurface;
+import org.opengis.geometry.primitive.Primitive;
+import org.opengis.geometry.primitive.Ring;
+import org.opengis.geometry.primitive.Shell;
+import org.opengis.geometry.primitive.Solid;
+import org.opengis.geometry.primitive.SolidBoundary;
+import org.opengis.geometry.primitive.Surface;
+import org.opengis.geometry.primitive.SurfaceBoundary;
 
 public class VOJAXBConvertUtil {
-	@SuppressWarnings("unused")
-	private static final Logger LOGGER = LoggerFactory.getLogger(VOJAXBConvertUtil.class);
+	private static final net.opengis.citygml.building.v_2_0.ObjectFactory bldgOf = new net.opengis.citygml.building.v_2_0.ObjectFactory();
 	
-	private static final net.opengis.indoorgml.core.v_1_0.ObjectFactory coreOf = new net.opengis.indoorgml.core.v_1_0.ObjectFactory();
-	private static final net.opengis.indoorgml.navigation.v_1_0.ObjectFactory naviOf = new net.opengis.indoorgml.navigation.v_1_0.ObjectFactory();
-	private static final net.opengis.gml.v_3_2_1.ObjectFactory gmlOf = new net.opengis.gml.v_3_2_1.ObjectFactory();
+	private static final net.opengis.citygml.v_2_0.ObjectFactory coreOf = new net.opengis.citygml.v_2_0.ObjectFactory();
+	private static final net.opengis.gml.v_3_1_1.ObjectFactory gmlOf = new net.opengis.gml.v_3_1_1.ObjectFactory();
+	private static final oasis.names.tc.ciq.xsdschema.xal.ObjectFactory xalOf = new oasis.names.tc.ciq.xsdschema.xal.ObjectFactory();
 	
-	public static IndoorFeaturesType createIndoorFeaturesType(IndoorFeaturesType target, IndoorFeatures vo){
-		if(target == null){
-			target = coreOf.createIndoorFeaturesType();
+	public static CityModelType createCityModelType(Building building) {
+		CityModelType target = coreOf.createCityModelType();
+		
+		//Envelope
+		Envelope envelope = createEnvelope(building.getLod1MultiSurface().getGeometry());
+		if(envelope != null) {
+			EnvelopeType envelopeType = gmlOf.createEnvelopeType();
+
+			String srsName = "EPSG::4326";
+			if(srsName != null) {
+				envelopeType.setSrsName(srsName); 
+			}
+			Integer srsDimension = envelope.getDimension();
+			if(srsDimension != null) {
+				envelopeType.setSrsDimension( new BigInteger(String.valueOf(srsDimension)));
+			}
+
+			//Geometry
+			DirectPosition lowerCorner = envelope.getLowerCorner();
+			DirectPositionType lowerDirectPosition = createDirectPositionType(lowerCorner);
+			envelopeType.setLowerCorner(lowerDirectPosition);
+
+			DirectPosition upperCorner = envelope.getUpperCorner();
+			DirectPositionType upperDirectPosition = createDirectPositionType(upperCorner);
+			envelopeType.setUpperCorner(upperDirectPosition);
+
+			//JAXBElement
+			JAXBElement<EnvelopeType> jEnvelope = gmlOf.createEnvelope(envelopeType);
+			BoundingShapeType boundingShapeType = gmlOf.createBoundingShapeType();
+			boundingShapeType.setEnvelope(jEnvelope);
+			target.setBoundedBy(boundingShapeType);	
 		}
+
+		//CityObjects
+		List<JAXBElement<FeaturePropertyType>> jFeatureMember = target.getFeatureMember();
+		FeaturePropertyType fp = gmlOf.createFeaturePropertyType();
 		
-		target = (IndoorFeaturesType) GMLJAXBConvertUtil.createAbstractFeatureType(target, vo);
+		JAXBElement<? extends AbstractCityObjectType> jCityObject = null;
+		AbstractBuildingType bType = CityGMLJAXBConvertUtil.createBuildingType(building);
+		jCityObject = bldgOf.createBuilding((BuildingType) bType);
+		fp.setFeature(jCityObject);
 		
-		// PrimalSpaceFeatures
-		if(vo.getPrimalSpaceFeatures() != null){
-			PrimalSpaceFeaturesPropertyType primalSpaceFeaturesPropertyType = coreOf.createPrimalSpaceFeaturesPropertyType();
-			primalSpaceFeaturesPropertyType.setPrimalSpaceFeatures(createPrimalSpaceFeaturesType(coreOf.createPrimalSpaceFeaturesType(), vo.getPrimalSpaceFeatures()));
-			target.setPrimalSpaceFeatures(primalSpaceFeaturesPropertyType);
+		JAXBElement<FeaturePropertyType> cityObjectMember = coreOf.createCityObjectMember(fp);
+		jFeatureMember.add(cityObjectMember);
+		
+		return target;
+	}
+	/*
+	public static CityModelType createCityModelType(CityModel vo) {
+		CityModelType target = coreOf.createCityModelType();
+		
+		setAbstractGML(target, vo);
+		
+		//Envelope
+		Envelope envelope = vo.getEnvelope();
+		if(envelope != null) {
+			EnvelopeType envelopeType = gmlOf.createEnvelopeType();
+
+			String srsName = envelope.getSrsName();
+			if(srsName != null) {
+				envelopeType.setSrsName(srsName); 
+			}
+			Integer srsDimension = envelope.getSrsDimension();
+			if(srsDimension != null) {
+				envelopeType.setSrsDimension( new BigInteger(String.valueOf(srsDimension)));
+			}
+
+			//Geometry
+			byte[] lowerCorner = envelope.getLowerCorner();
+			STPoint lower = (STPoint) parser.parseWKB(lowerCorner);
+			DirectPositionType lowerDirectPosition = createDirectPositionType(lower);
+			envelopeType.setLowerCorner(lowerDirectPosition);
+
+			byte[] upperCorner = envelope.getUpperCorner();
+			STPoint upper = (STPoint) parser.parseWKB(upperCorner);
+			DirectPositionType upperDirectPosition = createDirectPositionType(upper);
+			envelopeType.setUpperCorner(upperDirectPosition);
+
+			//JAXBElement
+			JAXBElement<EnvelopeType> jEnvelope = gmlOf.createEnvelope(envelopeType);
+			BoundingShapeType boundingShapeType = gmlOf.createBoundingShapeType();
+			boundingShapeType.setEnvelope(jEnvelope);
+			target.setBoundedBy(boundingShapeType);	
+		}
+
+		//CityObjects
+		List<? extends CityObject> cityObjects = vo.getCityObjects();
+		if(cityObjects != null) {
+			List<JAXBElement<FeaturePropertyType>> jFeatureMember = target.getFeatureMember();
+			for(CityObject co : cityObjects) {
+				FeaturePropertyType fp = gmlOf.createFeaturePropertyType();
 				
-		}
-		// MultiLayeredGraph
-		if(vo.getMultiLayeredGraph() != null){
-			MultiLayeredGraphType multiLayeredGraphType = coreOf.createMultiLayeredGraphType();
-			multiLayeredGraphType = createMultiLayeredGraphType(multiLayeredGraphType, vo.getMultiLayeredGraph());
-			target.setMultiLayeredGraph(multiLayeredGraphType);
+				JAXBElement<? extends AbstractCityObjectType> jCityObject = createCityObjectType(co);
+				fp.setFeature(jCityObject);
+				
+				JAXBElement<FeaturePropertyType> cityObjectMember = coreOf.createCityObjectMember(fp);
+				jFeatureMember.add(cityObjectMember);
+			}
 		}
 		
 		return target;
 	}
+	
+	public static JAXBElement<? extends AbstractCityObjectType> createCityObjectType(CityObject co) {
+		
+		JAXBElement<? extends AbstractCityObjectType> jCityObject = null;
+		if(co instanceof Building) {
+			Building b = (Building) co;
+			AbstractBuildingType bType = CityGMLJAXBConvertUtil.createBuildingType(b);
+			jCityObject = bldgOf.createBuilding((BuildingType) bType);
+		}
+		else if(co instanceof BoundarySurface) {
+			BoundarySurface vo = (BoundarySurface) co;
+			net.opengis.citygml.building.v_2_0.AbstractBoundarySurfaceType bType = CityGMLJAXBConvertUtil.createAbstractBoundarySurfaceType(vo);
+			jCityObject = bldgOf.createBoundarySurface(bType);
+		}
+		
+		
+		return jCityObject;
+	}
+	*/
+	
+	private static Envelope createEnvelope(MultiSurface multiSurface) {
+		Set<OrientableSurface> surfaces = multiSurface.getElements();
+		EnvelopeImpl envelope = null;
+		
+		for (OrientableSurface surface : surfaces) {
+			if (envelope == null) {
+				envelope = (EnvelopeImpl) surface.getEnvelope();
+			} else {
+				envelope.expand(surface.getEnvelope());
+			}
+		}
+		
+		return envelope;
+	}
+	public static AddressPropertyType createAddressType(Address vo) {
+		
+		AddressType addressType = coreOf.createAddressType();
+		/*
+		XalAddressPropertyType xalProp = createAddressDetails(vo);
+		addressType.setXalAddress(xalProp);
+		
+		byte[] multiPointWKB = vo.getMultiPoint();
+		if(multiPointWKB != null) {
+			STMultiPoint multiPoint = (STMultiPoint) parser.parseWKB(multiPointWKB);
+			MultiPointPropertyType multiPointProp = VOJAXBConvertUtil.createMultiPointPropertyType(multiPoint);
+			addressType.setMultiPoint(multiPointProp);
+		}
+		*/
+		AddressPropertyType addressProp = coreOf.createAddressPropertyType();
+		addressProp.setAddress(addressType);
+		
+		return addressProp;
+	}
+	/*
+	public static XalAddressPropertyType createAddressDetails(Address vo) {
+		
+		
+		//Country
+		AddressDetails.Country country = xalOf.createAddressDetailsCountry();
+		List<CountryNameElement> countryName = country.getCountryName();
+		CountryNameElement cn = xalOf.createCountryNameElement();
+		cn.setContent(vo.getCountry());
+		countryName.add(cn);
+		
+		//LocalityElement
+		LocalityElement locality = xalOf.createLocalityElement();
+		List<LocalityName> localityName = locality.getLocalityName();
+		LocalityName ln = xalOf.createLocalityElementLocalityName();
+		ln.setContent(vo.getLocalityName());
+		ln.setType(vo.getLocalityType());
+		localityName.add(ln);
+		
+		//ThoroughfareElement
+		ThoroughfareElement thoroughfare = xalOf.createThoroughfareElement();
+		thoroughfare.setType(vo.getThoroughfareType());
+		
+		List<ThoroughfareNameType> thoroughfareName = thoroughfare.getThoroughfareName();
+		ThoroughfareNameType tf = xalOf.createThoroughfareNameType();
+		tf.setContent(vo.getThoroughfareName());
+		thoroughfareName.add(tf);
+		
+		List<Object> throughfareNumber = thoroughfare.getThoroughfareNumberOrThoroughfareNumberRange();
+		ThoroughfareNumberElement tfne = xalOf.createThoroughfareNumberElement();
+		tfne.setContent(vo.getThoroughfareNumber());
+		throughfareNumber.add(tfne);
+		
+		locality.setThoroughfare(thoroughfare);
+		country.setLocality(locality);
+		
+		AddressDetails addressDetails = xalOf.createAddressDetails();
+		addressDetails.setCountry(country);
+		
+		XalAddressPropertyType xalProps = coreOf.createXalAddressPropertyType();
+		xalProps.setAddressDetails(addressDetails);
+		
+		return xalProps;
+	}
+	*/
+	public static void setAbstractGML(AbstractGMLType target, AbstractFeature vo) {
+		//GML ID
+		String gmlId = vo.getGmlID();
+		target.setId(gmlId);
 
-	private static PrimalSpaceFeaturesType createPrimalSpaceFeaturesType(
-			PrimalSpaceFeaturesType target,
-			PrimalSpaceFeatures vo) {
-		if(target != null){
-			target = (PrimalSpaceFeaturesType) GMLJAXBConvertUtil.createAbstractFeatureType(target, vo);
-			
-			// CellSpace
-			if(vo.getCellSpace() != null){
-				List<FeaturePropertyType> cellSpaceMember = target.getCellSpaceMember();
-				for(CellSpace cs : vo.getCellSpace()){
-					FeaturePropertyType featurePropertyType = gmlOf.createFeaturePropertyType();
-					JAXBElement<CellSpaceType> cellSpaceType = coreOf.createCellSpace(createCellSpaceType(coreOf.createCellSpaceType(), cs));
-					featurePropertyType.setAbstractFeature(cellSpaceType);
-					cellSpaceMember.add(featurePropertyType);
-				}
-				target.setCellSpaceMember(cellSpaceMember);	
-			}
-			// CellSpaceBoundary
-			if(vo.getCellSpaceBoundary() != null){
-				List<FeaturePropertyType> cellSpaceBoundaryMember = target.getCellSpaceBoundaryMember();
-				for(CellSpaceBoundary csb: vo.getCellSpaceBoundary()){
-					FeaturePropertyType featurePropertyType = gmlOf.createFeaturePropertyType();
-					JAXBElement<CellSpaceBoundaryType> cellSpaceBoundaryType = coreOf.createCellSpaceBoundary(createCellSpaceBoundaryType(coreOf.createCellSpaceBoundaryType(), csb));
-					featurePropertyType.setAbstractFeature(cellSpaceBoundaryType);
-					cellSpaceBoundaryMember.add(featurePropertyType);
-				}
-				target.setCellSpaceBoundaryMember(cellSpaceBoundaryMember);	
-			}
+		//Name
+		String name = vo.getGmlName();
+		String nameCodeSpace = vo.getNameCodeSpace();
+		List<JAXBElement<CodeType>> names = target.getName();
+		//TODO : consider multiple name 
+		JAXBElement<CodeType> jName = createCodeType(name, nameCodeSpace);
+		names.add(jName);
+
+		//TODO : consider StringOrRefType
+		String description = vo.getDescription();
+		if(description != null) {
+			StringOrRefType descriptionType = gmlOf.createStringOrRefType();
+			descriptionType.setValue(description);
+			target.setDescription(descriptionType);
+		}
+	}
+	/*
+	public static void setCityObjectAttributes(AbstractCityObjectType target, CityObject vo) {
+		
+		setAbstractGML(target, vo);
+		
+		Date creationDate = vo.getCreationDate();
+		if(creationDate != null) {
+			XMLGregorianCalendar jCreationDate = createXMLGregorianCalendar(creationDate);
+			target.setCreationDate(jCreationDate);
+		}
+
+		Date terminationDate = vo.getTerminationDate();
+		if(terminationDate != null) {
+			XMLGregorianCalendar jTerminationDate = createXMLGregorianCalendar(terminationDate);
+			target.setCreationDate(jTerminationDate);
+		}
+
+		String relativeToTerrain = vo.getRelativeToTerrain();
+		if(relativeToTerrain != null) {
+			target.setRelativeToTerrain(RelativeToTerrainType.fromValue(relativeToTerrain));
+		}
+
+		String relativeToWater = vo.getRelativeToWater();
+		if(relativeToWater != null) {
+			target.setRelativeToWater(RelativeToWaterType.fromValue(relativeToWater));
+		}
+	}
+	*/
+
+	public static GeometryPropertyType createGeometryProperty(Geometry g) {
+		GeometryPropertyType target = gmlOf.createGeometryPropertyType();
+		JAXBElement<? extends AbstractGeometryType> geometry = createAbstractGeometryType(g);
+		if(geometry != null) {
+			target.setGeometry(geometry);
 		}
 		return target;
 	}
 
-	private static CellSpaceType createCellSpaceType(CellSpaceType target, CellSpace vo) {
-		if(target != null){
-			target = (CellSpaceType) GMLJAXBConvertUtil.createAbstractFeatureType(target, vo);
-			
-			// Geometry2D
-			if(vo.getGeometry2D() != null){
-				SurfacePropertyType surfacePropertyType = GMLJAXBConvertUtil.createSurfacePropertyType(vo.getGeometry2D());
-				target.setGeometry2D(surfacePropertyType);
-			}
-			// Geometry3D
-			if(vo.getGeometry3D() != null){
-				SolidPropertyType solidPropertyType = GMLJAXBConvertUtil.createSolidPropertyType(vo.getGeometry3D());
-				target.setGeometry3D(solidPropertyType);
-			}
-			// Duality	
-			if(vo.getDuality() != null){
-				StatePropertyType statePropertyType = coreOf.createStatePropertyType();
-				statePropertyType.setHref("#" + vo.getHrefDuality());
-				target.setDuality(statePropertyType);
-			}
-			// PartialBoundedBy
-			if(vo.getPartialBoundedBy() != null){
-				List<CellSpaceBoundaryPropertyType> partialBoundedBy = target.getPartialboundedBy();
-				for(String cellSpaceBoundaryGMLID : vo.getHrefPartialBoundedBy()){
-					CellSpaceBoundaryPropertyType cellSpaceBoundaryPropertyType = coreOf.createCellSpaceBoundaryPropertyType();
-					cellSpaceBoundaryPropertyType.setHref("#" + cellSpaceBoundaryGMLID);
-					partialBoundedBy.add(cellSpaceBoundaryPropertyType);
-				}
-				target.setPartialboundedBy(partialBoundedBy);
-			}
-			// ExternalReference
-			if(vo.getExternalReference() != null){
-				List<ExternalReferenceType> externalReference = target.getExternalReference();
-				for(ExternalReference externalReferenceVO : vo.getExternalReference()){
-					ExternalReferenceType externalReferenceType = coreOf.createExternalReferenceType();
-					ExternalObjectReferenceType externalObjectReferenceType = coreOf.createExternalObjectReferenceType();
-					externalReferenceType.setInformationSystem(externalReferenceVO.getInformationSystem());
-					externalObjectReferenceType.setName(externalReferenceVO.getName());
-					externalObjectReferenceType.setUri(externalReferenceVO.getUri());
-					externalReferenceType.setExternalObject(externalObjectReferenceType);
-					externalReference.add(externalReferenceType);
-				}
-				target.setExternalReference(externalReference);
-			}
+	private static JAXBElement<? extends AbstractGeometryType> createAbstractGeometryType(final Geometry g) {
+
+		Geometry geom = g;
+		JAXBElement<? extends AbstractGeometryType> jGeometry = null;
+
+		Class<?> geomClass = geom.getClass();		
+		if(MultiSurface.class.isAssignableFrom(geomClass)) {
+			MultiSurfaceType target = createMultiSurfaceType((MultiSurface) geom);
+			jGeometry = gmlOf.createMultiSurface((MultiSurfaceType) target);
 		}
+		else if(Solid.class.isAssignableFrom(geomClass)) {
+			jGeometry = createAbstractSolidType((Solid) geom);
+		}
+		else if(Surface.class.isAssignableFrom(geomClass)) {
+			jGeometry = createAbstractSurfaceType((Surface) geom);
+		}		
+		else {
+			throw new UnsupportedOperationException("createAbstractGeometryType : unknown geometry (" + geom.toString() + ")");
+		}
+
+		return jGeometry;
+	}
+
+	public static DirectPositionListType createDirectPositionListType(DirectPosition[] positions) {
+		DirectPositionListType target = gmlOf.createDirectPositionListType();
+
+		List<Double> dList = target.getValue();
+		for(int i = 0 ; i < positions.length; i++) {
+			dList.add(positions[i].getOrdinate(0));
+			dList.add(positions[i].getOrdinate(1));
+			dList.add(positions[i].getOrdinate(2));
+		}
+
 		return target;
 	}
 
-	private static CellSpaceBoundaryType createCellSpaceBoundaryType(CellSpaceBoundaryType target, CellSpaceBoundary vo) {
-		if(target != null){
-			target = (CellSpaceBoundaryType) GMLJAXBConvertUtil.createAbstractFeatureType(target, vo);
-			
-			// Geometry2D
-			if(vo.getGeometry2D() != null){
-				CurvePropertyType curvePropertyType = GMLJAXBConvertUtil.createCurvePorpertyType(vo.getGeometry2D());
-				target.setGeometry2D(curvePropertyType);
-			}
-			// Geometry3D
-			if(vo.getGeometry3D() != null){
-				SurfacePropertyType surfacePropertyType = GMLJAXBConvertUtil.createSurfacePropertyType(vo.getGeometry3D());
-				target.setGeometry3D(surfacePropertyType);
-			}
-			// Duality	
-			if(vo.getDuality() != null){
-				TransitionPropertyType transitionPropertyType = coreOf.createTransitionPropertyType();
-				transitionPropertyType.setHref("#" + vo.getDuality());
-				target.setDuality(transitionPropertyType);
-			}
-			// ExternalReference
-			if(vo.getExternalReference() != null){
-				List<ExternalReferenceType> externalReference = target.getExternalReference();
-				for(ExternalReference externalReferenceVO : vo.getExternalReference()){
-					ExternalReferenceType externalReferenceType = coreOf.createExternalReferenceType();
-					ExternalObjectReferenceType externalObjectReferenceType = coreOf.createExternalObjectReferenceType();
-					externalReferenceType.setInformationSystem(externalReferenceVO.getInformationSystem());
-					externalObjectReferenceType.setName(externalReferenceVO.getName());
-					externalObjectReferenceType.setUri(externalReferenceVO.getUri());
-					externalReferenceType.setExternalObject(externalObjectReferenceType);
-					externalReference.add(externalReferenceType);
-				}
-				target.setExternalReference(externalReference);
+	public static DirectPositionType createDirectPositionType(DirectPosition position) {
+		DirectPositionType target = gmlOf.createDirectPositionType();
+
+		List<Double> dList = target.getValue();
+		dList.add(position.getOrdinate(0));
+		dList.add(position.getOrdinate(1));
+		dList.add(position.getOrdinate(2));
+
+		return target;
+	}
+
+	public static SolidPropertyType createSolidPropertyType(Solid g) {
+		SolidPropertyType target = gmlOf.createSolidPropertyType();
+		JAXBElement<? extends AbstractSolidType> solid = createAbstractSolidType(g);
+		if(solid != null) {
+			target.setSolid(solid);
+		}
+
+		return target;
+	}
+
+	public static JAXBElement<? extends AbstractSolidType> createAbstractSolidType(Solid g) {
+		AbstractSolidType target = null;
+		//TODO : always SolidType in this time.
+		target = gmlOf.createSolidType();
+
+		SolidType solid = (SolidType) target;
+
+		//Exterior, Interior
+		SolidBoundary boundary = g.getBoundary();
+		Shell exterior = boundary.getExterior();
+		Shell[] interiors = boundary.getInteriors();
+		
+		if(exterior != null) {
+			SurfacePropertyType surfaceProperty = createSurfacePropertyType(exterior);
+			if(surfaceProperty != null) {
+				solid.setExterior(surfaceProperty);
 			}
 		}
+
+		JAXBElement<? extends AbstractSolidType> jSolid = null;
+		if(target instanceof SolidType) {
+			jSolid = gmlOf.createSolid((SolidType) target);
+		} else {
+			throw new UnsupportedOperationException();
+		}
+
+		return jSolid;
+	}
+/*
+	public static CurvePropertyType createCurvePropertyType(LineString g) {
+		CurvePropertyType target = gmlOf.createCurvePropertyType();
+
+		JAXBElement<? extends AbstractCurveType> curve = createAbstractCurveType(g);
+		if(curve != null) {
+			target.setCurve(curve);
+		}
+
+		return target;
+	}
+
+	public static JAXBElement<? extends AbstractCurveType> createAbstractCurveType(LineString g) {
+		AbstractCurveType target = null;
+
+		STLineString g2 = (STLineString) g;
+
+
+		STPoint[] points = new STPoint[g2.numPoints()];
+		for(int i = 0; i < g2.numPoints(); i++) {
+			points[i] = g2.PointN(i);
+		}
+		DirectPositionListType dpl = createDirectPositionListType(points);
+
+		target = gmlOf.createLineStringType();
+		LineStringType l = (LineStringType) target;
+		l.setPosList(dpl);
+
+		JAXBElement<? extends AbstractCurveType> jCurve = gmlOf.createLineString((LineStringType) target);
+		return jCurve;
+	}
+*/
+	public static SurfacePropertyType createSurfacePropertyType(Object g) {
+		SurfacePropertyType target = gmlOf.createSurfacePropertyType();
+
+		JAXBElement<? extends AbstractSurfaceType> surface = createAbstractSurfaceType(g);
+		if(surface != null) {
+			target.setSurface(surface);
+		}
+
+		return target;
+	}
+
+	public static PolygonPropertyType createPolygonPropertyType(Polygon g) {
+		PolygonPropertyType target = gmlOf.createPolygonPropertyType();
+
+		JAXBElement<? extends AbstractSurfaceType> surface = createAbstractSurfaceType(g);
+		if(surface != null) {
+			target.setPolygon((PolygonType) surface.getValue());
+		}
+
 		return target;
 	}
 	
-	private static MultiLayeredGraphType createMultiLayeredGraphType(MultiLayeredGraphType target,
-			MultiLayeredGraph vo) {
-		if(target != null){
-			target = (MultiLayeredGraphType) GMLJAXBConvertUtil.createAbstractFeatureType(target, vo);
-			
-			// InterEdges
-			if(vo.getInterEdges() != null){
-				List<InterEdgesType> interEdges = target.getInterEdges();
-				for(InterEdges ie : vo.getInterEdges()){
-					InterEdgesType interEdgesType = createInterEdgesType(coreOf.createInterEdgesType(), ie);
-					interEdges.add(interEdgesType);
-				}
-				target.setInterEdges(interEdges);
-					
+	public static JAXBElement<? extends AbstractSurfaceType> createAbstractSurfaceType(Object g) {
+		AbstractSurfaceType target = null;
+
+		if (g instanceof Shell) {
+			target = gmlOf.createCompositeSurfaceType();
+			CompositeSurfaceType s = (CompositeSurfaceType) target;
+
+			List<SurfacePropertyType> surfaceMember = s.getSurfaceMember();
+
+			Shell shell = (Shell) g;
+			Collection<? extends Primitive> elements = shell.getElements();
+			for(Primitive element : elements) {
+				Surface surface = (Surface) element;
+				SurfacePropertyType surfaceProp = createSurfacePropertyType(surface);
+				surfaceMember.add(surfaceProp);
 			}
-			// SpaceLayers
-			if(vo.getSpaceLayers() != null){
-				List<SpaceLayersType> spaceLayers = target.getSpaceLayers();
-				for(SpaceLayers sl : vo.getSpaceLayers()){
-					SpaceLayersType spaceLayersType = createSpaceLayersType(coreOf.createSpaceLayersType(), sl);
-					spaceLayers.add(spaceLayersType);
-				}
-				target.setSpaceLayers(spaceLayers);	
+		} else if(g instanceof Surface) {
+			target = gmlOf.createPolygonType();
+			PolygonType s = (PolygonType) target;
+
+			Surface surface = (Surface) g;
+			SurfaceBoundary boundary = surface.getBoundary();
+			//Exterior
+			Ring exterior = boundary.getExterior();
+			if(exterior != null) {
+				AbstractRingPropertyType value = createAbstractRingPropertyType(exterior);
+				JAXBElement<AbstractRingPropertyType> exteriorProp = gmlOf.createExterior(value);
+				s.setExterior(exteriorProp);
 			}
+
+			//Interior
+			List<Ring> interiors = boundary.getInteriors();
+			if (interiors != null) {
+				List<JAXBElement<AbstractRingPropertyType>> interiorProps = s.getInterior();
+				for(Ring interior : interiors) {
+					AbstractRingPropertyType value = createAbstractRingPropertyType(interior);
+					JAXBElement<AbstractRingPropertyType> interiorProp = gmlOf.createInterior(value);
+					interiorProps.add(interiorProp);
+				}
+			}
+		}
+
+		JAXBElement<? extends AbstractSurfaceType> jSurface = null;
+		if(target instanceof CompositeSurfaceType) {
+			jSurface = gmlOf.createCompositeSurface((CompositeSurfaceType) target);
+		} else if(target instanceof PolygonType) {
+			jSurface = gmlOf.createPolygon((PolygonType) target);
+		}
+		else {
+			throw new UnsupportedOperationException();
+		}
+
+		return jSurface;
+	}
+
+	public static AbstractRingPropertyType createAbstractRingPropertyType(Ring ring) {
+		AbstractRingPropertyType target = gmlOf.createAbstractRingPropertyType();
+		JAXBElement<? extends AbstractRingType> aRing = createRingType(ring);
+		target.setRing(aRing);
+		return target;
+	}
+
+	public static JAXBElement<? extends AbstractRingType> createRingType(Ring ring) {
+
+		AbstractRingType target = null;
+		
+		//NOTE : citygml only use linearRing
+		target = gmlOf.createLinearRingType();
+		LinearRingType lRing = (LinearRingType) target;
+
+		DirectPositionListType directPosition = gmlOf.createDirectPositionListType();
+		List<Double> dList = directPosition.getValue();
+		List<DirectPosition> positions = ((RingImplUnsafe) ring).asDirectPositions();
+		for(DirectPosition position : positions) {
+			dList.add(position.getOrdinate(0));
+			dList.add(position.getOrdinate(1));
+			dList.add(position.getOrdinate(2));
+		}
+		lRing.setPosList(directPosition);
+
+		JAXBElement<? extends AbstractRingType> jRing = null;
+		if(target instanceof LinearRingType) {
+			jRing = gmlOf.createLinearRing((LinearRingType) target);
+		}
+
+		return jRing;
+	}
+
+	public static PointPropertyType createPointPropertyType(DirectPosition p) {
+		PointPropertyType target = gmlOf.createPointPropertyType();
+		PointType point = createPointType(p);
+		target.setPoint(point);
+		return target;
+	}
+
+	public static PointType createPointType(DirectPosition p) {
+		PointType target = gmlOf.createPointType();
+
+		DirectPositionType dpType = createDirectPositionType(p);
+		target.setPos(dpType);
+
+		return target;
+	}
+
+	public static MultiSurfacePropertyType createMultiSurfacePropertyType(MultiSurface g) {
+		MultiSurfacePropertyType target = gmlOf.createMultiSurfacePropertyType();
+
+		MultiSurfaceType multiSurface = createMultiSurfaceType(g);
+		if(multiSurface != null) {
+			target.setMultiSurface(multiSurface);
 		}
 		return target;
 	}
 
-	private static InterEdgesType createInterEdgesType(InterEdgesType target, InterEdges vo) {
-		if(target != null){
-			target = (InterEdgesType) GMLJAXBConvertUtil.createAbstractFeatureType(target, vo);
+	public static MultiSurfaceType createMultiSurfaceType(MultiSurface g) {
+		MultiSurfaceType target = gmlOf.createMultiSurfaceType();
 
-			// InterLayerConnection
-			if(vo.getInterLayerConnectionMember() != null){
-				List<InterLayerConnectionMemberType> interLayerConnection = target.getInterLayerConnectionMember();
-				for(InterLayerConnection ilc : vo.getInterLayerConnectionMember()){
-					InterLayerConnectionMemberType interLayerConnectionMemberType = coreOf.createInterLayerConnectionMemberType();
-					InterLayerConnectionType interLayerConnectionType = createInterLayerConnectionType(coreOf.createInterLayerConnectionType(), ilc);
-					interLayerConnectionMemberType.setInterLayerConnection(interLayerConnectionType);
-					interLayerConnection.add(interLayerConnectionMemberType);
-				}
-				target.setInterLayerConnectionMember(interLayerConnection);	
-			}
+		List<SurfacePropertyType> surfaceMember = target.getSurfaceMember();
+		Set<OrientableSurface> surfaces = g.getElements();
+		for(OrientableSurface s : surfaces) {
+			SurfacePropertyType surfaceProp = createSurfacePropertyType(s);
+			if(surfaceProp != null) surfaceMember.add(surfaceProp);
 		}
-		return target;
-	}
-	
-	private static InterLayerConnectionType createInterLayerConnectionType(InterLayerConnectionType target, InterLayerConnection vo) {
-		if(target != null){
-			target = (InterLayerConnectionType) GMLJAXBConvertUtil.createAbstractFeatureType(target, vo);
-			
-			// TypeOfTopoExpression
-			if(vo.getTypeOfTopoExpression() != null){
-				target.setTypeOfTopoExpression(vo.getTypeOfTopoExpression());	
-			}
-			// Comment
-			if(vo.getComment() != null){
-				target.setComment(vo.getComment());
-			}
-			// InterConnects
-			if(vo.getHrefInterConnects() != null){
-				List<StatePropertyType> interConnects = target.getInterConnects();
-				for(String interConnectsGMLID : vo.getHrefInterConnects()){
-					StatePropertyType statePropertyType = coreOf.createStatePropertyType();
-					statePropertyType.setHref("#" + interConnectsGMLID);
-					interConnects.add(statePropertyType);
-				}
-				target.setInterConnects(interConnects);	
-			}
-			// ConnectedLayer
-			if(vo.getHrefConnectedLayers() != null){
-				List<SpaceLayerPropertyType> connectedLayer = target.getConnectedLayers();
-				for(String connectedLayerGMLID : vo.getHrefConnectedLayers()){
-					SpaceLayerPropertyType spaceLayerPropertyType = coreOf.createSpaceLayerPropertyType();
-					spaceLayerPropertyType.setHref("#" + connectedLayerGMLID);
-					connectedLayer.add(spaceLayerPropertyType);
-				}
-				target.setConnectedLayers(connectedLayer);	
-			}
-		}
+
 		return target;
 	}
 
-	private static SpaceLayersType createSpaceLayersType(SpaceLayersType target, SpaceLayers vo) {
-		if(target != null){
-			target = (SpaceLayersType) GMLJAXBConvertUtil.createAbstractFeatureType(target, vo);
-			
-			// SpaceLayers
-			if(vo.getSpaceLayerMember() != null){
-				List<SpaceLayerMemberType> spaceLayers = target.getSpaceLayerMember();
-				for(SpaceLayer sl : vo.getSpaceLayerMember()){
-					SpaceLayerMemberType spaceLayerMemberType = coreOf.createSpaceLayerMemberType();
-					SpaceLayerType spaceLayerType = createSpaceLayerType(coreOf.createSpaceLayerType(), sl);
-					spaceLayerMemberType.setSpaceLayer(spaceLayerType);
-					spaceLayers.add(spaceLayerMemberType);
-				}
-				target.setSpaceLayerMember(spaceLayers);	
-			}
-		}
-		return target;
+	public static MeasureOrNullListType createMeasureOrNullListType(List<String> v, String uom) {
+		if(v == null || v.size() < 1) return null;
+
+		MeasureOrNullListType storeysHeightsAbove = gmlOf.createMeasureOrNullListType();
+
+		List<String> values = storeysHeightsAbove.getValue();
+		if(v != null) values.addAll(v);
+
+		storeysHeightsAbove.setUom(uom);
+
+		return storeysHeightsAbove;
 	}
 
-	private static SpaceLayerType createSpaceLayerType(SpaceLayerType target, SpaceLayer vo) {
-		if(target != null){
-			target = (SpaceLayerType) GMLJAXBConvertUtil.createAbstractFeatureType(target, vo);
-			
-			/* SET ATTRIBUTES */
-			// TODO SpaceLayerClassTypeType
-			/*
-			String clazz = vo.getClazz();
-			String classCodeSpace = vo.getClassCodeSpace();
-			List<CodeType> clazzType = GMLJAXBConvertUtil.createCodeType(clazz, classCodeSpace);
-			SpaceLayerClassTypeType classType = 
-			if(clazzType != null) target.set(clazzType);
-			*/
-			
-			//TODO : consider multiple functions
-			String func = vo.getFunction();
-			String funcCodeSpace = vo.getFunctionCodeSpace();
-			List<CodeType> funcType = GMLJAXBConvertUtil.createCodeType(target.getFunction(), func, funcCodeSpace);
-			if(funcType != null) target.setFunction(funcType);
-			
-			//TODO : consider multiple usages
-			String usage = vo.getUsage();
-			String usageCodeSpace = vo.getUsageCodeSpace();
-			List<CodeType> usageType = GMLJAXBConvertUtil.createCodeType(target.getUsage(), usage, usageCodeSpace);
-			if(usageType != null) target.setUsage(usageType);
-			if(vo.getCreationDate() != null) target.setCreationDate(createXMLGregorianCalendar(vo.getCreationDate()));
-			if(vo.getTeminationDate() != null) target.setTerminationDate(createXMLGregorianCalendar(vo.getTeminationDate()));
-			
-			// Nodes
-			if(vo.getNodes() != null){
-				List<NodesType> nodes = target.getNodes();
-				for(Nodes node : vo.getNodes()){
-					NodesType nodesType = createNodesType(coreOf.createNodesType(), node);
-					nodes.add(nodesType);
-				}
-				target.setNodes(nodes);
-					
-			}
-			// Edges
-			if(vo.getEdges() != null){
-				List<EdgesType> edges = target.getEdges();
-				for(Edges edge : vo.getEdges()){
-					EdgesType edgesType = createEdgesType(coreOf.createEdgesType(), edge);
-					edges.add(edgesType);
-				}
-				target.setEdges(edges);	
-			}
+	public static JAXBElement<CodeType> createCodeType(String value, String codeSpace) {
+		if(value == null && codeSpace == null) {
+			return null;
 		}
-		return target;
+
+		CodeType codeType = gmlOf.createCodeType();
+		codeType.setValue(value);
+		codeType.setCodeSpace(codeSpace);
+
+		JAXBElement<CodeType> jCodeType = gmlOf.createName(codeType);
+		return jCodeType;
 	}
 
-	private static NodesType createNodesType(NodesType target, Nodes vo) {
-		if(target != null){
-			target = (NodesType) GMLJAXBConvertUtil.createAbstractFeatureType(target, vo);
-			
-			// State
-			if(vo.getStateMember() != null){
-				List<StateMemberType> stateMember = target.getStateMember();
-				for(State s : vo.getStateMember()){
-					StateMemberType stateMemberType = coreOf.createStateMemberType();
-					StateType state = createStateType(coreOf.createStateType(), s);
-					stateMemberType.setState(state);
-					stateMember.add(stateMemberType);
-				}
-				target.setStateMember(stateMember);	
-			}
+	public static LengthType createLengthType(Double value, String uom) {
+		if(value == null && uom == null) {
+			return null;
 		}
-		return target;
-	}
-	
-	private static StateType createStateType(StateType target, State vo) {
-		if(target != null){
-			target = (StateType) GMLJAXBConvertUtil.createAbstractFeatureType(target, vo);
-			
-			// Geometry
-			if(vo.getGeometry() != null){
-				PointPropertyType geometry = GMLJAXBConvertUtil.creatPointPropertyType(vo.getGeometry());
-				target.setGeometry(geometry);
-			}
-			// Duality	
-			if(vo.getDuality() != null){
-				CellSpacePropertyType cellSpacePropertyType = coreOf.createCellSpacePropertyType();
-				cellSpacePropertyType.setHref("#" + vo.getHrefDuality());
-				target.setDuality(cellSpacePropertyType );
-			}
-			// Connects
-			if(vo.getHrefConnects() != null){
-				List<TransitionPropertyType> connects = target.getConnects();
-				for(String transitionGMLID : vo.getHrefConnects()){
-					TransitionPropertyType transitionPropertyType = coreOf.createTransitionPropertyType();
-					transitionPropertyType.setHref("#" + transitionGMLID);
-					connects.add(transitionPropertyType);
-				}
-				target.setConnects(connects);	
-			}
-		}
-		return target;
-	}
 
-	private static EdgesType createEdgesType(EdgesType target, Edges vo) {
-		if(target != null){
-			target = (EdgesType) GMLJAXBConvertUtil.createAbstractFeatureType(target, vo);
-			
-			// State
-			if(vo.getTransitionMember() != null){
-				List<TransitionMemberType> transitionMember = target.getTransitionMember();
-				for(Transition t : vo.getTransitionMember()){
-					TransitionMemberType transitionMemberType = coreOf.createTransitionMemberType();
-					TransitionType transitionType = createTransitionType(coreOf.createTransitionType(), t);
-					transitionMemberType.setTransition(transitionType);
-					transitionMember.add(transitionMemberType);
-				}
-				target.setTransitionMember(transitionMember);	
-			}
-		}
-		return target;
-	}
+		LengthType mh = gmlOf.createLengthType();
+		mh.setValue(value);
+		mh.setUom(uom);
 
-	private static TransitionType createTransitionType(TransitionType target, Transition vo) {
-		if(target != null){
-			target = (TransitionType) GMLJAXBConvertUtil.createAbstractFeatureType(target, vo);
-			
-			// Weight
-			if(vo.getWeight() != null){
-				target.setWeight(vo.getWeight());	
-			}
-			// Geometry
-			if(vo.getGeometry() != null){
-				CurvePropertyType geometry = GMLJAXBConvertUtil.createCurvePorpertyType(vo.getGeometry());
-				target.setGeometry(geometry);
-			}
-			// Duality	
-			if(vo.getHrefDuality() != null){
-				CellSpaceBoundaryPropertyType cellSpaceBoundaryPropertyType = coreOf.createCellSpaceBoundaryPropertyType();
-				cellSpaceBoundaryPropertyType.setHref("#" + vo.getHrefDuality());
-				target.setDuality(cellSpaceBoundaryPropertyType);
-			}
-			// Connects
-			if(vo.getHrefConnects() != null){
-				List<StatePropertyType> connects = target.getConnects();
-				for(String stateGMLID : vo.getHrefConnects()){
-					StatePropertyType statePropertyType = coreOf.createStatePropertyType();
-					statePropertyType.setHref("#" + stateGMLID);
-					connects.add(statePropertyType);
-				}
-				target.setConnects(connects);	
-			}
-		}
-		return target;
+		return mh;
 	}
 
 	public static XMLGregorianCalendar createXMLGregorianCalendar(Date date) {
-		
+
 		GregorianCalendar gregory = new GregorianCalendar();
 		gregory.setTime(date);
 
 		XMLGregorianCalendar calendar;
 		try {
 			calendar = DatatypeFactory.newInstance()
-			        .newXMLGregorianCalendar(
-			            gregory);
+					.newXMLGregorianCalendar(
+							gregory);
 			calendar.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
 			calendar.setTime(DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED, DatatypeConstants.FIELD_UNDEFINED);
 			calendar.setDay(DatatypeConstants.FIELD_UNDEFINED);
 			calendar.setMonth(DatatypeConstants.FIELD_UNDEFINED);
 			return calendar;
 		} catch (DatatypeConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
 	}
-
-	public static RouteType createRouteType(RouteType target, Route vo) {
-		if(target == null){
-			target = naviOf.createRouteType();
-		}
-		target = (RouteType) GMLJAXBConvertUtil.createAbstractFeatureType(target, vo);
-		
-		// StartRouteNode, EndRouteNode
-		if(vo.getStartRouteNode() != null){
-			RouteNodePropertyType routeNodePropertyType = naviOf.createRouteNodePropertyType();
-			routeNodePropertyType.setRouteNode(createRouteNodeType(naviOf.createRouteNodeType(), vo.getStartRouteNode(), vo));
-			target.setStartRouteNode(routeNodePropertyType);
-		}
-		if(vo.getEndRouteNode() != null){
-			RouteNodePropertyType routeNodePropertyType = naviOf.createRouteNodePropertyType();
-			routeNodePropertyType.setRouteNode(createRouteNodeType(naviOf.createRouteNodeType(), vo.getEndRouteNode(), vo));
-			target.setEndRouteNode(routeNodePropertyType);
-		}
-		// RouteNodes
-		if(vo.getRouteNodes() != null){
-			RouteNodesType routeNodesType = naviOf.createRouteNodesType();
-			routeNodesType = createRouteNodesType(routeNodesType, vo.getRouteNodes());
-			target.setRouteNodes(routeNodesType);
-		}
-		// Path
-		if(vo.getPath() != null){
-			PathType pathType = naviOf.createPathType();
-			pathType = createPathType(pathType, vo.getPath());
-			target.setPath(pathType);
-		}
-		
-		return target;
-	}
-
-	private static RouteNodeType createRouteNodeType(RouteNodeType target, RouteNode vo, Object parents) {
-		if(target != null){
-			target = (RouteNodeType) GMLJAXBConvertUtil.createAbstractFeatureType(target, vo);
-			
-			// ReferencedState
-			if(vo.getReferencedState() != null){
-				StatePropertyType statePropertyType = coreOf.createStatePropertyType();
-				if(parents instanceof Route){
-					statePropertyType.setHref("#" + vo.getReferencedState().getGmlID());
-				}
-				else if(parents instanceof RouteNodes){
-					statePropertyType.setState(createStateType(coreOf.createStateType(), vo.getReferencedState()));
-				}	
-				target.setReferencedState(statePropertyType);
-			}
-			
-			// Geometry
-			if(vo.getGeometry() != null){
-				PointPropertyType pointPropertyType = gmlOf.createPointPropertyType();
-				pointPropertyType.setHref("#" + vo.getGeometry().getGmlId());
-				target.setGeometry(pointPropertyType);
-			}
-		}
-		return target;
-	}
-
-	private static RouteNodesType createRouteNodesType(RouteNodesType target, RouteNodes vo) {
-		if(target != null){
-			target = (RouteNodesType) GMLJAXBConvertUtil.createAbstractFeatureType(target, vo);
-			
-			// NodeMember
-			if(vo.getNodeMember() != null){
-				List<RouteNodeMemberType> nodeMember = target.getNodeMember();
-				for(RouteNode routeNode : vo.getNodeMember()){
-					RouteNodeMemberType routeNodeMemberType = naviOf.createRouteNodeMemberType();
-					RouteNodeType routeNodeType = createRouteNodeType(naviOf.createRouteNodeType(), routeNode, vo);
-					routeNodeMemberType.setRouteNode(routeNodeType);
-					nodeMember.add(routeNodeMemberType);
-				}
-				target.setNodeMember(nodeMember);	
-			}
-		}
-		return target;
-	}
-	
-	private static PathType createPathType(PathType target, Path vo) {
-		if(target != null){
-			target = (PathType) GMLJAXBConvertUtil.createAbstractFeatureType(target, vo);
-			
-			// RouteMember
-			if(vo.getRouteMember() != null){
-				List<RouteSegmentMemberType> routeMember = target.getRouteMember();
-				for(RouteSegment routeSegment : vo.getRouteMember()){
-					RouteSegmentMemberType routeSegmentMemberType = naviOf.createRouteSegmentMemberType();
-					RouteSegmentType routeSegmentType = createRouteSegmentType(naviOf.createRouteSegmentType(), routeSegment);
-					routeSegmentMemberType.setRouteSegment(routeSegmentType );
-					routeMember.add(routeSegmentMemberType);
-				}
-				target.setRouteMember(routeMember);	
-			}
-		}
-		return target;
-	}
-
-	private static RouteSegmentType createRouteSegmentType(RouteSegmentType target, RouteSegment vo) {
-		if(target != null){
-			target = (RouteSegmentType) GMLJAXBConvertUtil.createAbstractFeatureType(target, vo);
-			// Weight
-			target.setWeight(vo.getWeight());
-			// Connects
-			if(vo.getConnects() != null){
-				List<RouteNodePropertyType> connects = target.getConnects();
-				for(String routeNodeGMLID : vo.getConnects()){
-					RouteNodePropertyType routeNodePropertyType = naviOf.createRouteNodePropertyType();
-					routeNodePropertyType.setHref("#" + routeNodeGMLID);
-					connects.add(routeNodePropertyType);
-				}	
-			}
-			// ReferencedTransition
-			if(vo.getReferencedTransition() != null){
-				TransitionPropertyType transitionPropertyType = coreOf.createTransitionPropertyType();
-				transitionPropertyType.setTransition(createTransitionType(coreOf.createTransitionType(), vo.getReferencedTransition()));
-				target.setReferencedTransition(transitionPropertyType);
-			}
-			
-			// Geometry
-			if(vo.getGeometry() != null){
-				CurvePropertyType curvePropertyType = gmlOf.createCurvePropertyType();
-				curvePropertyType.setHref("#" + vo.getGeometry().getGmlId());
-				target.setGeometry(curvePropertyType);
-			}
-		}
-		return target;
-	}
-
 }

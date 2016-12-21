@@ -2,13 +2,12 @@ package edu.pnu.importexport;
 
 import java.io.File;
 import java.util.Locale;
-import java.util.Properties;
+
+import net.opengis.citygml.building.Building;
 
 import org.apache.ibatis.io.Resources;
 import org.junit.Before;
 import org.junit.Test;
-
-import edu.pnu.test.TestSupport;
 
 public class MockUpTest {
 	@Before
@@ -18,27 +17,28 @@ public class MockUpTest {
 	
 	@Test
 	public void CoreMockUpsTest() throws Exception {
-		IndoorGMLKairosImporter importer = new IndoorGMLKairosImporter();
-		//IndoorGMLKairosExporter exporter = new IndoorGMLKairosExporter();
-		Properties props = TestSupport.getDefaultProperties();
-		//IndoorGMLKairosManager manager = new IndoorGMLKairosManager();
-		//manager.deleteSchema(props);
-		//manager.createSchema(props);
+		IndoorGMLImporter importer = new IndoorGMLImporter();
 		
-		String coreResource = "example/SAMPLE_DATA_AVENUEL1F2F_3D.gml";
+		//String coreResource = "example/LWM_AVENUEL_1F.gml";
+		//String coreResource = "example/SAMPLE_DATA_AVENUEL1F2F_3D.gml";
+		//String coreResource = "example/SAMPLE_DATA_LWM_3D.gml";
+		String coreResource = "example/SAMPLE_LWM_AVENUEL.gml";
 		//String coreResource = "test/indoorgml_core_mockup.gml";
 		
 		File coreFile = Resources.getResourceAsFile(coreResource);
-		importer.importIndoorGML(props, "Core", coreFile.getAbsolutePath());
+		importer.importIndoorGML("Core", coreFile.getAbsolutePath());
+		
+		Building building = importer.getBuilding();
+		CityGMLExporter.exportCityGML(building, "result_building.gml");
+		
 		//exporter.exportIndoorGMLCore(props, "Core", "result_core.gml");
 	}
 	
 	//@Test
 	public void NaviMockUpsTest() throws Exception {
-		IndoorGMLKairosImporter importer = new IndoorGMLKairosImporter();
+		IndoorGMLImporter importer = new IndoorGMLImporter();
 		
 		//IndoorGMLKairosExporter exporter = new IndoorGMLKairosExporter();
-		Properties props = TestSupport.getDefaultProperties();
 		//IndoorGMLKairosManager manager = new IndoorGMLKairosManager();
 		//manager.deleteSchema(props);
 		//manager.createSchema(props);
@@ -46,7 +46,7 @@ public class MockUpTest {
 		String naviResource = "test/indoorgml_navi_mockup.gml";
 		
 		File naviFile = Resources.getResourceAsFile(naviResource);
-		importer.importIndoorGML(props, "Navi", naviFile.getAbsolutePath());
+		importer.importIndoorGML("Navi", naviFile.getAbsolutePath());
 		//exporter.exportIndoorGMLNavi(props, "Navi", "result_navi.gml");
 	}
 }

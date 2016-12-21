@@ -2,6 +2,7 @@ package edu.pnu.importexport.store;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -239,17 +240,23 @@ public class IndoorGMLCoreVOConvertUtil {
 		
 		/* collections */
 		ArrayList<InterLayerConnection> interLayerConnectionMember = new ArrayList<InterLayerConnection>();
+		Map<State, InterLayerConnection> stateILCMap = new HashMap<State, InterLayerConnection>();
 		List<BindingNode> interLayerConnectionNode = node.getCollection("INTERLAYERCONNECTION");
 		for(BindingNode ilcNode : interLayerConnectionNode){
 			InterLayerConnection interLayerConnection = createInterLayerConnection(ilcNode, idRegistryMap);
 			interLayerConnection.parents = interEdges;
 			
 			interLayerConnectionMember.add(interLayerConnection);
+			
+			for (State state : interLayerConnection.getInterConnects()) {
+				stateILCMap.put(state, interLayerConnection);
+			}
 			for(IndoorObject io : interLayerConnection.indoorObject){
 				interEdges.indoorObject.add(io);
 			}
 		}
 		interEdges.setInterLayerConnectionMember(interLayerConnectionMember);
+		interEdges.setStateILCMap(stateILCMap);
 		
 		return interEdges;
 	}
