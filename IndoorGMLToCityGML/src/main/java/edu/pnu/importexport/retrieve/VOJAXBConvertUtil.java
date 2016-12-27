@@ -20,6 +20,7 @@ import net.opengis.citygml.building.Building;
 import net.opengis.citygml.building.v_2_0.AbstractBuildingType;
 import net.opengis.citygml.building.v_2_0.BuildingType;
 import net.opengis.citygml.core.AbstractFeature;
+import net.opengis.citygml.core.CityObject;
 import net.opengis.citygml.v_2_0.AbstractCityObjectType;
 import net.opengis.citygml.v_2_0.AddressPropertyType;
 import net.opengis.citygml.v_2_0.AddressType;
@@ -297,11 +298,11 @@ public class VOJAXBConvertUtil {
 			target.setDescription(descriptionType);
 		}
 	}
-	/*
-	public static void setCityObjectAttributes(AbstractCityObjectType target, CityObject vo) {
+	
+	public static void setCityObjectAttributes(AbstractCityObjectType target, AbstractFeature vo) {
 		
 		setAbstractGML(target, vo);
-		
+		/*
 		Date creationDate = vo.getCreationDate();
 		if(creationDate != null) {
 			XMLGregorianCalendar jCreationDate = createXMLGregorianCalendar(creationDate);
@@ -313,18 +314,9 @@ public class VOJAXBConvertUtil {
 			XMLGregorianCalendar jTerminationDate = createXMLGregorianCalendar(terminationDate);
 			target.setCreationDate(jTerminationDate);
 		}
-
-		String relativeToTerrain = vo.getRelativeToTerrain();
-		if(relativeToTerrain != null) {
-			target.setRelativeToTerrain(RelativeToTerrainType.fromValue(relativeToTerrain));
-		}
-
-		String relativeToWater = vo.getRelativeToWater();
-		if(relativeToWater != null) {
-			target.setRelativeToWater(RelativeToWaterType.fromValue(relativeToWater));
-		}
+		*/
 	}
-	*/
+	
 
 	public static GeometryPropertyType createGeometryProperty(Geometry g) {
 		GeometryPropertyType target = gmlOf.createGeometryPropertyType();

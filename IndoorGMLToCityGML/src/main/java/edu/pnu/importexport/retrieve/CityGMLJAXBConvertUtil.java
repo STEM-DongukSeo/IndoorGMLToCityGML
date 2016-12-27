@@ -245,7 +245,7 @@ public class CityGMLJAXBConvertUtil {
 	public static RoomType createRoomType(Room vo) {
 		RoomType target = bldgOf.createRoomType();
 		
-		//VOJAXBConvertUtil.setCityObjectAttributes(target, vo);
+		VOJAXBConvertUtil.setCityObjectAttributes(target, vo);
 		
 		/*
 		String clazz = vo.getClazz();

@@ -22,14 +22,14 @@ public class MockUpTest {
 		//String coreResource = "example/LWM_AVENUEL_1F.gml";
 		//String coreResource = "example/SAMPLE_DATA_AVENUEL1F2F_3D.gml";
 		//String coreResource = "example/SAMPLE_DATA_LWM_3D.gml";
-		String coreResource = "example/SAMPLE_LWM_AVENUEL.gml";
-		//String coreResource = "test/indoorgml_core_mockup.gml";
-		
+		//String coreResource = "example/SAMPLE_LWM_AVENUEL.gml";
+		String coreResource = "example/LWM.gml";
+				
 		File coreFile = Resources.getResourceAsFile(coreResource);
 		importer.importIndoorGML("Core", coreFile.getAbsolutePath());
 		
 		Building building = importer.getBuilding();
-		CityGMLExporter.exportCityGML(building, "result_building.gml");
+		CityGMLExporter.exportCityGML(building, "result_building_LWM.gml");
 		
 		//exporter.exportIndoorGMLCore(props, "Core", "result_core.gml");
 	}
