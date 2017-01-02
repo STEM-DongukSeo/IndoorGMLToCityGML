@@ -92,7 +92,7 @@ public class CityGMLExporter {
 			DOMSource source = new DOMSource(document);
 			StreamResult streamResult = new StreamResult(output);
 			t.transform(source, streamResult);
-		} catch (TransformerException | ParserConfigurationException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

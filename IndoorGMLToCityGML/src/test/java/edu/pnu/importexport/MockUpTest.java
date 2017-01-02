@@ -19,11 +19,11 @@ public class MockUpTest {
 	public void CoreMockUpsTest() throws Exception {
 		IndoorGMLImporter importer = new IndoorGMLImporter();
 		
-		//String coreResource = "example/LWM_AVENUEL_1F.gml";
+		String coreResource = "example/LWM_AVENUEL_1F.gml";
 		//String coreResource = "example/SAMPLE_DATA_AVENUEL1F2F_3D.gml";
 		//String coreResource = "example/SAMPLE_DATA_LWM_3D.gml";
 		//String coreResource = "example/SAMPLE_LWM_AVENUEL.gml";
-		String coreResource = "example/LWM.gml";
+		//String coreResource = "example/LWM.gml";
 				
 		File coreFile = Resources.getResourceAsFile(coreResource);
 		importer.importIndoorGML("Core", coreFile.getAbsolutePath());
