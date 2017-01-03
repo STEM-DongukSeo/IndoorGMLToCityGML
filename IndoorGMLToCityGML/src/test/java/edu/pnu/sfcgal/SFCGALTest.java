@@ -107,7 +107,7 @@ public class SFCGALTest {
 		
 		System.out.println(intersection.toString());
 		System.out.println("isIntersects : "  + isIntersects);
-		
+		/*
 		Solid solid1 = Geometry3DOperationTest.getSolids(builder).get(0);
 		Solid solid2 = Geometry3DOperationTest.getSolids(builder).get(1);
 		System.out.println(solid1.distance(solid2));
@@ -117,6 +117,7 @@ public class SFCGALTest {
 		TransfiniteSet intersection2 = solid1.intersection(surface1);
 		System.out.println(intersection2.toString());
 		System.out.println(surface1.toString());
+		*/
 	}
 
 }

@@ -65,12 +65,21 @@
 		</dependency>
 
 		<!-- Local Jar Dependencies -->
+		<!-- 
 		<dependency>
 			<groupId>org.geotools</groupId>
 			<artifactId>gt-geometry-ng</artifactId>
 			<version>15-SNAPSHOT</version>
 			<scope>system</scope>
 			<systemPath>${project.basedir}/lib/gt-geometry-ng.jar</systemPath>
+		</dependency>
+		-->
+		<dependency>
+			<groupId>org.geotools</groupId>
+			<artifactId>gt-geometry-ng</artifactId>
+			<version>15-SNAPSHOT</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/gt-geometry-ng-linux.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>edu.pnu</groupId>

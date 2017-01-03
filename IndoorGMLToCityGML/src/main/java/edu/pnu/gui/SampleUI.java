@@ -18,6 +18,10 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import edu.pnu.importexport.CityGMLExporter;
+import edu.pnu.importexport.IndoorGMLImporter;
+import net.opengis.citygml.building.Building;
+
 public class SampleUI extends JFrame {
 
 	private JPanel contentPane;
@@ -29,6 +33,9 @@ public class SampleUI extends JFrame {
 	private JButton btnTranslate;
 	private JLabel lblCitygmlDocument;
 	private JTextField textField_CityGML;
+	
+	private File source;
+	private File destination;
 
 	/**
 	 * Launch the application.
@@ -102,8 +109,8 @@ public class SampleUI extends JFrame {
 
                     int returnVal = fileChooser.showOpenDialog(SampleUI.this);
                     if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    	File file = fileChooser.getSelectedFile();
-                    	textField_IndoorGML.setText(file.getAbsolutePath());
+                    	source = fileChooser.getSelectedFile();
+                    	textField_IndoorGML.setText(source.getAbsolutePath());
                     	textArea.append("Load IndoorGML Document.\n");
                     }
 				}
@@ -131,10 +138,19 @@ public class SampleUI extends JFrame {
 
                     int returnVal = fileChooser.showSaveDialog(SampleUI.this);
                     if (returnVal == JFileChooser.APPROVE_OPTION) {                    	
-                        File file = fileChooser.getSelectedFile();
-                        textField_CityGML.setText(file.getAbsolutePath());
+                        destination = fileChooser.getSelectedFile();
+                        textField_CityGML.setText(destination.getAbsolutePath());
             	    	textArea.append("Translate IndoorGML to CityGML...\n");
-            	    	sleep(1500);
+            	    	IndoorGMLImporter importer = new IndoorGMLImporter();
+            	    	try {
+							importer.importIndoorGML("Core", source.getAbsolutePath());
+	            			Building building = importer.getBuilding();
+	            			CityGMLExporter.exportCityGML(building, destination.getAbsolutePath());
+						} catch (Exception e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+            			
             			textArea.append("Create CityGML Document.\n");                
             			textArea.append("Done.\n");
                     }
